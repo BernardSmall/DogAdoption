@@ -10,36 +10,31 @@ namespace DogAdoption
 {
     public class Program
     {
-        
+        // Global collections for objects – make them public for StaffMember
+        public static List<Dog> availableDogs = new List<Dog>();
+        public static List<Adopter> adopters = new List<Adopter>();
+        public static List<AdoptionApplication> applications = new List<AdoptionApplication>();
 
-        //global collections for object
-        private static List<Dog> availableDogs = new List<Dog>();
-        private static List<Adopter> adopters = new List<Adopter>();
-        private static List<AdoptionApplication> applications = new List<AdoptionApplication>();
-
-
-      //enum with menu options
-       public enum MianMenu1
+        // Enum with menu options
+        public enum MainMenu1
         {
             View_Available_Dogs = 1,
             Apply_for_Adoption,
             View_Adopters,
             Search_Dogs_by_Name_or_ID,
             View_Adopted_Dogs,
-            Exit
+            Manage_Dogs_as_Staff,
+            Exit,
         }
 
-
-        //main program
         static void Main()
         {
-            //bool for menu
             bool menuBool = true;
-            
+
             do
             {
                 SeedDogs();
-                switch (DisplayMainMenu2())
+                switch (DisplayMainMenu())
                 {
                     case 1:
                         ViewAvailableDogs();
@@ -57,71 +52,56 @@ namespace DogAdoption
                         ViewAdoptedDogs();
                         break;
                     case 6:
-
-                        closeProgramLoadScreen();
+                        ManageDogsAsStaff();
+                        break;
+                    case 7:
+                        CloseProgramLoadScreen();
                         Console.WriteLine("Program closed");
                         Thread.Sleep(3000);
                         Environment.Exit(0);
-
-
                         break;
-
                     default:
                         Console.WriteLine("Invalid option! Press Enter.");
                         Console.ReadLine();
                         break;
                 }
             } while (menuBool);
-           
-            
         }
 
-        //populates collections with objects of dogs with data about dogs
         private static void SeedDogs()
         {
-            availableDogs.Add(new Dog(1, "Buddy", "Labrador", 3, "Medium"));
-            availableDogs.Add(new Dog(2, "Milo", "Beagle", 2, "Small"));
-            availableDogs.Add(new Dog(3, "Daisy", "German Shepherd", 4, "Large"));
+            if (availableDogs.Count == 0) // avoid adding duplicates
+            {
+                availableDogs.Add(new Dog(1, "Buddy", "Labrador", 3, "Medium"));
+                availableDogs.Add(new Dog(2, "Milo", "Beagle", 2, "Small"));
+                availableDogs.Add(new Dog(3, "Daisy", "German Shepherd", 4, "Large"));
+            }
         }
 
-        //method to display main menu
-        private static int DisplayMainMenu2()
+        private static int DisplayMainMenu()
         {
-            foreach (MianMenu1 item in Enum.GetValues(typeof(MianMenu1)))
+            Console.Clear();
+            foreach (MainMenu1 item in Enum.GetValues(typeof(MainMenu1)))
             {
-                Console.WriteLine("{0}, {1}", (int)item, item );
+                Console.WriteLine("{0}. {1}", (int)item, item);
             }
-            int option =int.Parse(Console.ReadLine());
+            Console.Write("Choose an option: ");
+            int.TryParse(Console.ReadLine(), out int option);
             return option;
         }
 
-        //Simulates loading/exiting screen
-        public static void closeProgramLoadScreen()
+        public static void CloseProgramLoadScreen()
         {
             Console.WriteLine("Exiting");
             Thread.Sleep(1000);
             for (int i = 0; i < 5; i++)
             {
-                Console.WriteLine("Exiting.");
-                Thread.Sleep(200);
                 Console.Clear();
-                Console.WriteLine("Exiting..");
+                Console.WriteLine("Exiting" + new string('.', i + 1));
                 Thread.Sleep(200);
-                Console.Clear();
-                Console.WriteLine("Exiting...");
-                Thread.Sleep(200);
-                Console.Clear();
-                Console.WriteLine("Exiting....");
-                Thread.Sleep(200);
-                Console.Clear();
-                Console.WriteLine("Exiting.....");
-                Thread.Sleep(200);
-                Console.Clear();
-
             }
         }
 
-        //checks if there are dogs available to adopt
         private static void ViewAvailableDogs()
         {
             Console.Clear();
@@ -134,16 +114,17 @@ namespace DogAdoption
             Console.ReadLine();
         }
 
-
         private static void ApplyForAdoption()
         {
             Console.Clear();
             Console.Write("Enter your name: ");
             string name = Console.ReadLine();
-            Console.Write("Enter your contact info: ");
+            Console.Write("Enter your contact info (Phone Number): ");
             string contact = Console.ReadLine();
+            Console.Write("Enter your email address: ");
+            string email = Console.ReadLine();
 
-            Adopter adopter = new Adopter(name, contact);
+            Adopter adopter = new Adopter(name, contact, email);
             adopters.Add(adopter);
 
             Console.WriteLine("Available Dogs:");
@@ -153,8 +134,7 @@ namespace DogAdoption
             }
 
             Console.Write("Enter Dog ID to adopt: ");
-            int id;
-            int.TryParse(Console.ReadLine(), out id);
+            int.TryParse(Console.ReadLine(), out int id);
 
             Dog selectedDog = availableDogs.FirstOrDefault(d => d.Id == id && d.IsAvailable);
             if (selectedDog != null)
@@ -191,6 +171,7 @@ namespace DogAdoption
 
             var results = availableDogs.Where(d => d.Name.Equals(input, StringComparison.OrdinalIgnoreCase)
                                                 || d.Id.ToString() == input);
+
             Console.WriteLine("Search Results:");
             foreach (var dog in results)
             {
@@ -210,6 +191,19 @@ namespace DogAdoption
             }
             Console.WriteLine("Press Enter to return.");
             Console.ReadLine();
+        }
+
+        // NEW: Handle staff dog management
+        private static void ManageDogsAsStaff()
+        {
+            Console.Clear();
+            Console.Write("Enter staff name: ");
+            string staffName = Console.ReadLine();
+            Console.Write("Enter contact info: ");
+            string contact = Console.ReadLine();
+
+            StaffMember staff = new StaffMember(staffName, contact);
+            staff.ManageDogs();
         }
     }
 }
