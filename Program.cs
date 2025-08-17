@@ -15,6 +15,9 @@ namespace DogAdoption
         public static List<Adopter> adopters = new List<Adopter>();
         public static List<AdoptionApplication> applications = new List<AdoptionApplication>();
 
+        // Track last notified adoption
+        private static int lastNotifiedApplicationIndex = -1;
+
         // Enum with menu options
         public enum MainMenu1
         {
@@ -30,6 +33,11 @@ namespace DogAdoption
         static void Main()
         {
             bool menuBool = true;
+
+            // Start notification thread
+            Thread notificationThread = new Thread(DogAdoptionNotification);
+            notificationThread.IsBackground = true; // stops with program exit
+            notificationThread.Start();
 
             do
             {
@@ -57,7 +65,7 @@ namespace DogAdoption
                     case 7:
                         CloseProgramLoadScreen();
                         Console.WriteLine("Program closed");
-                        Thread.Sleep(3000);
+                        Thread.Sleep(2000);
                         Environment.Exit(0);
                         break;
                     default:
@@ -70,7 +78,7 @@ namespace DogAdoption
 
         private static void SeedDogs()
         {
-            if (availableDogs.Count == 0) // avoid adding duplicates
+            if (availableDogs.Count == 0) // avoid duplicates
             {
                 availableDogs.Add(new Dog(1, "Buddy", "Labrador", 3, "Medium"));
                 availableDogs.Add(new Dog(2, "Milo", "Beagle", 2, "Small"));
@@ -193,7 +201,6 @@ namespace DogAdoption
             Console.ReadLine();
         }
 
-        // NEW: Handle staff dog management
         private static void ManageDogsAsStaff()
         {
             Console.Clear();
@@ -204,6 +211,25 @@ namespace DogAdoption
 
             StaffMember staff = new StaffMember(staffName, contact);
             staff.ManageDogs();
+        }
+
+        // NOTIFICATION THREAD: prints each new adoption once
+        private static void DogAdoptionNotification()
+        {
+            while (true)
+            {
+                // Check if there are new adoptions
+                if (applications.Count > 0 && applications.Count - 1 > lastNotifiedApplicationIndex)
+                {
+                    var newApp = applications.Last();
+                    Console.WriteLine($"\n[Notification] {newApp.Adopter.Name} just adopted {newApp.Dog.Name}!\n");
+
+                    // Update index so we don't repeat this notification
+                    lastNotifiedApplicationIndex = applications.Count - 1;
+                }
+
+                Thread.Sleep(1000); // check every 1 second
+            }
         }
     }
 }
