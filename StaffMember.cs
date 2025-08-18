@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DogAdoption
@@ -10,6 +11,7 @@ namespace DogAdoption
     {
         public StaffMember(string name, string contactInfo) : base(name, contactInfo)
         {
+          
         }
 
         // Keep your original GetDetails override
@@ -18,7 +20,6 @@ namespace DogAdoption
             return $"Staff Name: {Name}, Contact: {ContactInfo}";
         }
 
-        // Main staff menu to manage dogs
         public void ManageDogs()
         {
             bool keepManaging = true;
@@ -32,8 +33,7 @@ namespace DogAdoption
                 Console.WriteLine("4. Return to Main Menu");
                 Console.Write("Choose an option: ");
 
-                int choice;
-                int.TryParse(Console.ReadLine(), out choice);
+                int.TryParse(Console.ReadLine(), out int choice);
 
                 switch (choice)
                 {
@@ -56,6 +56,7 @@ namespace DogAdoption
                 }
             }
         }
+
 
         // IManageDogs implementation
         public void AddDog(Dog dog, List<Dog> dogList)
