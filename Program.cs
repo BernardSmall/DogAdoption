@@ -266,7 +266,16 @@ namespace DogAdoption
                 if (applications.Count > 0 && applications.Count - 1 > lastNotifiedApplicationIndex)
                 {
                     var newApp = applications.Last();
+
+                    // Save current color
+                    var prevColor = Console.ForegroundColor;
+
+                    // Change to green
+                    Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine($"\n[Notification] {newApp.Adopter.Name} just adopted {newApp.Dog.Name}!\n");
+
+                    // Reset to previous color
+                    Console.ForegroundColor = prevColor;
 
                     // Update index so we don't repeat this notification
                     lastNotifiedApplicationIndex = applications.Count - 1;
