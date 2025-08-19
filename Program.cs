@@ -70,7 +70,19 @@ namespace DogAdoption
                 // USE DELEGATE: Execute menu action using delegate
                 if (menuActions.ContainsKey(choice))
                 {
-                    menuActions[choice].Invoke();
+                    try
+                    {
+                        menuActions[choice].Invoke();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine($"An error occurred: {ex.Message}");
+                        Console.ResetColor();
+                        Console.WriteLine("Press Enter to continue...");
+                        Console.ReadLine();
+                        EventManager.TriggerLog($"Error in menu action {choice}: {ex.Message}");
+                    }
                 }
                 else if (choice == 8) // Exit
                 {
@@ -82,30 +94,33 @@ namespace DogAdoption
                 }
                 else
                 {
-                    Console.WriteLine("Invalid option! Press Enter.");
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Invalid option! Please select 1-8.");
+                    Console.ResetColor();
+                    Console.WriteLine("Press Enter to continue...");
                     Console.ReadLine();
                 }
             } while (menuBool);
-        } 
+        }
 
-        private static void InitializeMenuActions()
+    private static void InitializeMenuActions()
         {
             menuActions = new Dictionary<int, MenuActionDelegate>
-            {
-                { 1, ViewAvailableDogs },
-                { 2, ApplyForAdoption },
-                { 3, ViewAdopters },
-                { 4, SearchDogs },
-                { 5, ViewAdoptedDogs },
-                { 6, ManageDogsAsStaff },
-                { 7, ViewSortedDogs } // NEW
-            };
+             {
+                 { 1, ViewAvailableDogs },
+                 { 2, ApplyForAdoption },
+                 { 3, ViewAdopters },
+                 { 4, SearchDogs },
+                 { 5, ViewAdoptedDogs },
+                 { 6, ManageDogsAsStaff },
+                 { 7, ViewSortedDogs } // NEW
+             };
 
         }
 
 
-    // Shows the main menu and returns the user’s choice
-    private static int DisplayMainMenu()
+        // Shows the main menu and returns the user’s choice
+        private static int DisplayMainMenu()
         {
             Console.Clear();
             TerminalArt.Header("DogMenu");
@@ -114,9 +129,14 @@ namespace DogAdoption
             {
                 Console.WriteLine("{0}. {1}", (int)item, item);
             }
-            Console.Write("Choose an option: ");
-            int.TryParse(Console.ReadLine(), out int option);
-            return option;
+            // Get validated menu choice
+            int? choice = ValidationUtils.GetValidatedIntInput(
+                "Choose an option (1-8): ",
+                option => option >= 1 && option <= 8,
+                "Please select a valid option between 1 and 8."
+            );
+
+            return choice ?? 0; // Return 0 if validation failed (will show invalid option message)
         }
 
         // Shows a little “closing animation” when program exits
@@ -155,51 +175,79 @@ namespace DogAdoption
             Console.ReadLine();
         }
 
-            // Handles adoption application process
-            private static void ApplyForAdoption()
+        // Handles adoption application process
+        private static void ApplyForAdoption()
         {
-            Console.Clear();
-            TerminalArt.Header("Apply for Adoption");
-
-            Console.Write("Enter your name: ");
-            string name = Console.ReadLine();
-            Console.Write("Enter your contact info (Phone Number): ");
-            string contact = Console.ReadLine();
-            Console.Write("Enter your email address: ");
-            string email = Console.ReadLine();
-
-            Adopter adopter = new Adopter(name, contact, email);
-            adopters.Add(adopter);
-
-            Console.WriteLine("\nAvailable Dogs:");
-            var availableOnly = availableDogs.Where(d => d.IsAvailable).ToList();
-            foreach (var dog in availableOnly)
+            try
             {
-                Console.WriteLine(dog.GetDogDetails());
-            }
+                // Create adopter with validation
+                Adopter adopter = Adopter.CreateAdopterWithValidation();
+                if (adopter == null)
+                {
+                    Console.WriteLine("Adoption application cancelled. Press Enter to return.");
+                    Console.ReadLine();
+                    return;
+                }
 
-            Console.Write("\nEnter Dog ID to adopt: ");
-            int.TryParse(Console.ReadLine(), out int id);
+                adopters.Add(adopter);
 
-            Dog selectedDog = availableDogs.FirstOrDefault(d => d.Id == id && d.IsAvailable);
-            if (selectedDog != null)
-            {
+                Console.Clear();
+                TerminalArt.Header("Apply for Adoption");
+                var availableOnly = availableDogs.Where(d => d.IsAvailable).ToList();
+
+                if (availableOnly.Count == 0)
+                {
+                    Console.WriteLine("Sorry, no dogs are currently available for adoption.");
+                    Console.WriteLine("Press Enter to return.");
+                    Console.ReadLine();
+                    return;
+                }
+
+                foreach (var dog in availableOnly)
+                {
+                    Console.WriteLine(dog.GetDogDetails());
+                }
+
+                // Get validated dog ID
+                int? dogId = ValidationUtils.GetValidatedIntInput(
+                    "\nEnter Dog ID to adopt: ",
+                    id => availableDogs.Any(d => d.Id == id && d.IsAvailable),
+                    "Please enter a valid ID of an available dog."
+                );
+
+                if (dogId == null)
+                {
+                    Console.WriteLine("Adoption application cancelled. Press Enter to return.");
+                    Console.ReadLine();
+                    return;
+                }
+                Dog selectedDog = availableDogs.First(d => d.Id == dogId.Value);
+
                 // USE EVENT SYSTEM: Change status which triggers events
                 selectedDog.ChangeAvailabilityStatus(false);
 
                 AdoptionApplication app = new AdoptionApplication(selectedDog, adopter);
                 applications.Add(app);
 
-                Console.WriteLine($"\nSuccess! {adopter.Name} adopted {selectedDog.Name}. Press Enter.");
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"\n🎉 SUCCESS! {adopter.Name} successfully adopted {selectedDog.Name}!");
+                Console.ResetColor();
                 EventManager.TriggerNotification($"🎉 Successful adoption: {adopter.Name} adopted {selectedDog.Name}!");
+
+                Console.WriteLine("Press Enter to continue.");
+                Console.ReadLine();
             }
-            else
+            catch (Exception ex)
             {
-                Console.WriteLine("\nInvalid or already adopted dog. Press Enter.");
-                EventManager.TriggerLog($"Failed adoption attempt - Invalid dog ID: {id}");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"An error occurred during adoption: {ex.Message}");
+                Console.ResetColor();
+                EventManager.TriggerLog($"Error during adoption process: {ex.Message}");
+                Console.WriteLine("Press Enter to return.");
+                Console.ReadLine();
             }
-            Console.ReadLine();
         }
+
 
         // Displays all adopters
         private static void ViewAdopters()
@@ -254,10 +302,11 @@ namespace DogAdoption
             Console.WriteLine("Press Enter to return.");
             Console.ReadLine();
 
+            Dog.SearchDogs(availableDogs);
         }
 
-            // Shows a list of dogs that have already been adopted
-            private static void ViewAdoptedDogs()
+        // Shows a list of dogs that have already been adopted
+        private static void ViewAdoptedDogs()
         {
             Console.Clear();
             TerminalArt.Header("Adopted Dogs");
@@ -283,92 +332,187 @@ namespace DogAdoption
             Console.ReadLine();
         }
 
-        // Staff login and menu
+        // Staff login and menu with enhanced validation
         private static void ManageDogsAsStaff()
         {
+            int maxAttempts = 3;
             int attempts = 0;
             bool authenticated = false;
 
-            while (attempts < 3 && !authenticated)
+            while (attempts < maxAttempts && !authenticated)
             {
                 Console.Clear();
                 TerminalArt.Header("Staff Login");
 
-                Console.Write("Enter staff name: ");
-                string staffName = Console.ReadLine();
+                string staffName = ValidationUtils.GetValidatedInput(
+                    "Enter staff name: ",
+                    ValidationUtils.IsValidName,
+                    "Staff name must be 2-50 characters and contain only letters, spaces, hyphens, and apostrophes.",
+                    1 // Only one attempt per login cycle
+                );
 
-                Console.Write("Enter contact info (password): ");
-                string contact = Console.ReadLine();
+                if (staffName == null)
+                {
+                    attempts++;
+                    continue;
+                }
 
-                if (staffName == "Member01" && contact == "password")
+                string password = ValidationUtils.GetValidatedInput(
+                    "Enter password: ",
+                    ValidationUtils.IsValidPassword,
+                    "Password must be 6-50 characters long.",
+                    1 // Only one attempt per login cycle
+                );
+
+                if (password == null)
+                {
+                    attempts++;
+                    continue;
+                }
+
+                // Basic staff login validation
+                if (staffName.Equals("Member01", StringComparison.OrdinalIgnoreCase) && password == "password")
                 {
                     authenticated = true;
-                    Console.WriteLine("\nAccess granted! Press Enter.");
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("\n✓ Access granted! Welcome to staff management.");
+                    Console.ResetColor();
+                    Console.WriteLine("Press Enter to continue...");
                     Console.ReadLine();
 
-                    StaffMember staff = new StaffMember(staffName, contact);
-                    EventManager.TriggerLog($"Staff member logged in: {staffName}");
-                    staff.ManageDogs();
+                    try
+                    {
+                        StaffMember staff = new StaffMember(staffName, "Staff Contact Info");
+                        EventManager.TriggerLog($"Staff member logged in: {staffName}");
+                        staff.ManageDogs();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine($"Error creating staff member: {ex.Message}");
+                        Console.ResetColor();
+                        EventManager.TriggerLog($"Error creating staff member: {ex.Message}");
+                        Console.WriteLine("Press Enter to return...");
+                        Console.ReadLine();
+                    }
                 }
                 else
                 {
                     attempts++;
-                    Console.WriteLine($"\nInvalid credentials. Attempts left: {3 - attempts}");
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"\n❌ Invalid credentials. Attempts remaining: {maxAttempts - attempts}");
+                    Console.ResetColor();
                     EventManager.TriggerLog($"Failed login attempt for staff: {staffName}");
-                    Thread.Sleep(1000);
+
+                    if (attempts < maxAttempts)
+                    {
+                        Console.WriteLine("Press Enter to try again...");
+                        Console.ReadLine();
+                    }
                 }
             }
 
             if (!authenticated)
             {
-                Console.WriteLine("\nToo many failed attempts! Returning to main menu...");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("\n🚫 Too many failed attempts! Access denied.");
+                Console.ResetColor();
                 EventManager.TriggerLog("Staff login blocked - too many failed attempts");
-                Thread.Sleep(1500);
+                Console.WriteLine("Returning to main menu...");
+                Thread.Sleep(2000);
             }
-       
-    }
+        }
+        /*        // Staff login and menu
+                private static void ManageDogsAsStaff()
+                {
+                    int attempts = 0;
+                    bool authenticated = false;
+
+                    while (attempts < 3 && !authenticated)
+                    {
+                        Console.Clear();
+                        TerminalArt.Header("Staff Login");
+
+                        Console.Write("Enter staff name: ");
+                        string staffName = Console.ReadLine();
+
+                        Console.Write("Enter contact info (password): ");
+                        string contact = Console.ReadLine();
+
+                        if (staffName == "Member01" && contact == "password")
+                        {
+                            authenticated = true;
+                            Console.WriteLine("\nAccess granted! Press Enter.");
+                            Console.ReadLine();
+
+                            StaffMember staff = new StaffMember(staffName, contact);
+                            EventManager.TriggerLog($"Staff member logged in: {staffName}");
+                            staff.ManageDogs();
+                        }
+                        else
+                        {
+                            attempts++;
+                            Console.WriteLine($"\nInvalid credentials. Attempts left: {3 - attempts}");
+                            EventManager.TriggerLog($"Failed login attempt for staff: {staffName}");
+                            Thread.Sleep(1000);
+                        }
+                    }
+
+                    if (!authenticated)
+                    {
+                        Console.WriteLine("\nToo many failed attempts! Returning to main menu...");
+                        EventManager.TriggerLog("Staff login blocked - too many failed attempts");
+                        Thread.Sleep(1500);
+                    }
+
+                }*/
 
         // Runs in the background and shows a green notification when someone adopts a dog
         private static void DogAdoptionNotification()
         {
             while (true)
             {
-                if (applications.Count > 0 && applications.Count - 1 > lastNotifiedApplicationIndex)
+                try
                 {
-                    var newApp = applications.Last();
+                    if (applications.Count > 0 && applications.Count - 1 > lastNotifiedApplicationIndex)
+                    {
+                        var newApp = applications.Last();
 
-                    var prevColor = Console.ForegroundColor;
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine($"\n[Notification] {newApp.Adopter.Name} just adopted {newApp.Dog.Name}!\n");
-                    Console.ForegroundColor = prevColor;
+                        var prevColor = Console.ForegroundColor;
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.WriteLine($"\n[Notification] {newApp.Adopter.Name} just adopted {newApp.Dog.Name}!\n");
+                        Console.ForegroundColor = prevColor;
 
-                    lastNotifiedApplicationIndex = applications.Count - 1;
+                        lastNotifiedApplicationIndex = applications.Count - 1;
+                    }
                 }
-
+                catch (Exception ex)
+                {
+                    EventManager.TriggerLog($"Error in notification thread: {ex.Message}");
+                }
                 Thread.Sleep(1000);
             }
         }
-            
-            private static void ViewSortedDogs()
+
+        private static void ViewSortedDogs()
+        {
+            Console.Clear();
+            TerminalArt.Header("Dogs Sorted by Age and Name");
+
+            // INBUILT INTERFACE USAGE: Sort using IComparable implementation
+            var sortedDogs = availableDogs.ToList();
+            sortedDogs.Sort(); // Uses IComparable<Dog>.CompareTo method
+
+            Console.WriteLine("Dogs sorted by Age (ascending), then by Name:");
+            foreach (var dog in sortedDogs)
             {
-                Console.Clear();
-                TerminalArt.Header("Dogs Sorted by Age and Name");
-
-                // INBUILT INTERFACE USAGE: Sort using IComparable implementation
-                var sortedDogs = availableDogs.ToList();
-                sortedDogs.Sort(); // Uses IComparable<Dog>.CompareTo method
-
-                Console.WriteLine("Dogs sorted by Age (ascending), then by Name:");
-                foreach (var dog in sortedDogs)
-                {
-                    Console.WriteLine(dog.GetDogDetails());
-                }
-
-                Console.WriteLine("\nPress Enter to return.");
-                Console.ReadLine();
-
+                Console.WriteLine(dog.GetDogDetails());
             }
 
+            Console.WriteLine("\nPress Enter to return.");
+            Console.ReadLine();
+
         }
-    }
+    } 
+}
 
