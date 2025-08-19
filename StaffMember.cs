@@ -10,9 +10,16 @@ namespace DogAdoption
     // StaffMember inherits from Person and can manage dogs
     public class StaffMember : Person, IManageDogs
     {
+        public delegate void StaffActionDelegate(string action, string details);
+        public static event StaffActionDelegate StaffActionPerformed;
         // Constructor
         public StaffMember(string name, string contactInfo) : base(name, contactInfo)
         {
+            StaffActionPerformed += OnStaffActionPerformed;
+        }
+        private static void OnStaffActionPerformed(string action, string details)
+        {
+            EventManager.TriggerLog($"Staff Action: {action} - {details}");
         }
 
         // Override GetDetails from Person
@@ -66,6 +73,10 @@ namespace DogAdoption
         {
             dogList.Add(dog);
             Console.WriteLine($"Dog {dog.Name} added successfully. Press Enter.");
+
+            StaffActionPerformed?.Invoke("ADD_DOG", $"Added dog: {dog.Name} (ID: {dog.Id})");
+            EventManager.TriggerNotification($"🐕 New dog added to system: {dog.Name}");
+
             Console.ReadLine();
         }
 
@@ -77,10 +88,14 @@ namespace DogAdoption
             {
                 dogList.Remove(dog);
                 Console.WriteLine($"Dog {dog.Name} removed successfully. Press Enter.");
+
+                StaffActionPerformed?.Invoke("REMOVE_DOG", $"Removed dog: {dog.Name} (ID: {id})");
+                EventManager.TriggerNotification($"🗑️ Dog removed from system: {dog.Name}");
             }
             else
             {
                 Console.WriteLine("Dog not found. Press Enter.");
+                StaffActionPerformed?.Invoke("REMOVE_DOG_FAILED", $"Failed to remove dog with ID: {id}");
             }
             Console.ReadLine();
         }
@@ -108,10 +123,15 @@ namespace DogAdoption
                 if (!string.IsNullOrEmpty(size)) dog.Size = size;
 
                 Console.WriteLine("Dog updated successfully. Press Enter.");
+                StaffActionPerformed?.Invoke("UPDATE_DOG", $"Updated dog ID {id}: {dog.Name}");
+                EventManager.TriggerNotification($"✏️ Dog information updated: {dog.Name}");
+
             }
             else
             {
                 Console.WriteLine("Dog not found. Press Enter.");
+                StaffActionPerformed?.Invoke("UPDATE_DOG_FAILED", $"Failed to update dog with ID: {id}");
+
             }
             Console.ReadLine();
         }

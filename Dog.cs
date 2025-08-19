@@ -3,7 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public class Dog
+public delegate void DogStatusChangedHandler(Dog dog, string oldStatus, string newStatus);
+
+public class Dog : IComparable<Dog>
 {
     public int Id { get; set; }
     public string Name { get; set; }
@@ -11,6 +13,8 @@ public class Dog
     public int Age { get; set; }
     public string Size { get; set; }
     public bool IsAvailable { get; set; } = true;
+
+    public static event DogStatusChangedHandler StatusChanged;
 
     public Dog(int id, string name, string breed, int age, string size)
     {
@@ -20,7 +24,27 @@ public class Dog
         Age = age;
         Size = size;
     }
+    public void ChangeAvailabilityStatus(bool newStatus)
+    {
+        string oldStatus = IsAvailable ? "Available" : "Adopted";
+        IsAvailable = newStatus;
+        string newStatusText = IsAvailable ? "Available" : "Adopted";
 
+        // TRIGGER EVENT: Fire the event when status changes
+        StatusChanged?.Invoke(this, oldStatus, newStatusText);
+    }
+
+    public int CompareTo(Dog other)
+    {
+        if (other == null) return 1;
+
+        // Sort by Age first, then by Name
+        int ageComparison = this.Age.CompareTo(other.Age);
+        if (ageComparison != 0)
+            return ageComparison;
+
+        return string.Compare(this.Name, other.Name, StringComparison.OrdinalIgnoreCase);
+    }
     public string GetDogDetails()
     {
         return $"ID: {Id}, Name: {Name}, Breed: {Breed}, Age: {Age}, Size: {Size}, Available: {IsAvailable}";
@@ -101,8 +125,21 @@ public class Dog
             }
         }
 
+       /* public int CompareTo(Dog other)
+        {
+            if (other == null) return 1;
+
+            // Sort by Age first, then by Name
+            int ageComparison = this.Age.CompareTo(other.Age);
+            if (ageComparison != 0)
+                return ageComparison;
+
+            return string.Compare(this.Name, other.Name, StringComparison.OrdinalIgnoreCase);
+        }*/
+
         Console.WriteLine("Press Enter to return.");
         Console.ReadLine();
+
     }
 }
 
