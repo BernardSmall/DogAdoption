@@ -9,15 +9,15 @@ namespace DogAdoption
 {
     public class Program
     {
-        // Global collections for objects – make them public for StaffMember
+        // Global lists to store dogs, adopters and adoption applications
         public static List<Dog> availableDogs = new List<Dog>();
         public static List<Adopter> adopters = new List<Adopter>();
         public static List<AdoptionApplication> applications = new List<AdoptionApplication>();
 
-        // Track last notified adoption
+        // Keeps track of the last adoption notification shown
         private static int lastNotifiedApplicationIndex = -1;
 
-        // Enum with menu options
+        // Enum for main menu options
         public enum MainMenu1
         {
             View_Available_Dogs = 1,
@@ -31,25 +31,27 @@ namespace DogAdoption
 
         static void Main()
         {
-            // --- terminal cosmetics ---
-            Console.OutputEncoding = Encoding.UTF8;              // box-drawing characters
+            // Setup terminal look and feel
+            Console.OutputEncoding = Encoding.UTF8;
             Console.Title = "SPCA Adoption — Terminal";
 
-            // One-time splash screen (banner + dog + welcome)
+            // Show welcome splash screen
             TerminalArt.Splash();
 
             bool menuBool = true;
 
-            // Start notification thread
+            // Start a background thread that shows notifications when a dog is adopted
             Thread notificationThread = new Thread(DogAdoptionNotification)
             {
-                IsBackground = true // stops with program exit
+                IsBackground = true
             };
             notificationThread.Start();
 
+            // Main menu loop
             do
             {
                 SeedDogs();
+
                 switch (DisplayMainMenu())
                 {
                     case 1:
@@ -84,9 +86,10 @@ namespace DogAdoption
             } while (menuBool);
         }
 
+        // Adds some sample dogs if the list is empty
         private static void SeedDogs()
         {
-            if (availableDogs.Count == 0) // avoid duplicates
+            if (availableDogs.Count == 0)
             {
                 availableDogs.Add(new Dog(1, "Buddy", "Labrador", 3, "Medium"));
                 availableDogs.Add(new Dog(2, "Milo", "Beagle", 2, "Small"));
@@ -94,11 +97,10 @@ namespace DogAdoption
             }
         }
 
+        // Shows the main menu and returns the user’s choice
         private static int DisplayMainMenu()
         {
             Console.Clear();
-
-            // Tidy header via TerminalArt
             TerminalArt.Header("DogMenu");
 
             foreach (MainMenu1 item in Enum.GetValues(typeof(MainMenu1)))
@@ -110,6 +112,7 @@ namespace DogAdoption
             return option;
         }
 
+        // Shows a little “closing animation” when program exits
         public static void CloseProgramLoadScreen()
         {
             Console.WriteLine("Exiting");
@@ -122,6 +125,7 @@ namespace DogAdoption
             }
         }
 
+        // Displays all available dogs
         private static void ViewAvailableDogs()
         {
             Console.Clear();
@@ -134,6 +138,7 @@ namespace DogAdoption
             Console.ReadLine();
         }
 
+        // Handles adoption application process
         private static void ApplyForAdoption()
         {
             Console.Clear();
@@ -173,6 +178,7 @@ namespace DogAdoption
             Console.ReadLine();
         }
 
+        // Displays all adopters
         private static void ViewAdopters()
         {
             Console.Clear();
@@ -185,6 +191,7 @@ namespace DogAdoption
             Console.ReadLine();
         }
 
+        // Allows user to search dogs by name or ID
         private static void SearchDogs()
         {
             Console.Clear();
@@ -204,6 +211,7 @@ namespace DogAdoption
             Console.ReadLine();
         }
 
+        // Shows a list of dogs that have already been adopted
         private static void ViewAdoptedDogs()
         {
             Console.Clear();
@@ -216,6 +224,7 @@ namespace DogAdoption
             Console.ReadLine();
         }
 
+        // Staff login and menu
         private static void ManageDogsAsStaff()
         {
             int attempts = 0;
@@ -232,7 +241,7 @@ namespace DogAdoption
                 Console.Write("Enter contact info (password): ");
                 string contact = Console.ReadLine();
 
-                // Replace with actual staff credentials
+                // Basic staff login (hard-coded for now)
                 if (staffName == "Member01" && contact == "password")
                 {
                     authenticated = true;
@@ -240,7 +249,7 @@ namespace DogAdoption
                     Console.ReadLine();
 
                     StaffMember staff = new StaffMember(staffName, contact);
-                    staff.ManageDogs(); // Open management menu
+                    staff.ManageDogs();
                 }
                 else
                 {
@@ -257,31 +266,24 @@ namespace DogAdoption
             }
         }
 
-        // NOTIFICATION THREAD: prints each new adoption once
+        // Runs in the background and shows a green notification when someone adopts a dog
         private static void DogAdoptionNotification()
         {
             while (true)
             {
-                // Check if there are new adoptions
                 if (applications.Count > 0 && applications.Count - 1 > lastNotifiedApplicationIndex)
                 {
                     var newApp = applications.Last();
 
-                    // Save current color
                     var prevColor = Console.ForegroundColor;
-
-                    // Change to green
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine($"\n[Notification] {newApp.Adopter.Name} just adopted {newApp.Dog.Name}!\n");
-
-                    // Reset to previous color
                     Console.ForegroundColor = prevColor;
 
-                    // Update index so we don't repeat this notification
                     lastNotifiedApplicationIndex = applications.Count - 1;
                 }
 
-                Thread.Sleep(1000); // check every 1 second
+                Thread.Sleep(1000);
             }
         }
     }
