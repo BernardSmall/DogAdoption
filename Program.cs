@@ -10,9 +10,6 @@ namespace DogAdoption
 {
     public class Program
     {
-        public int var;
-
-
         // Global lists to store dogs, adopters and adoption applications
         public static List<Dog> availableDogs = new List<Dog>();
         public static List<Adopter> adopters = new List<Adopter>();
