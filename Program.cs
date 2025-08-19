@@ -50,12 +50,12 @@ namespace DogAdoption
             // Main menu loop
             do
             {
-                SeedDogs();
+                Dog.SeedDogs(availableDogs);
 
                 switch (DisplayMainMenu())
                 {
                     case 1:
-                        ViewAvailableDogs();
+                        Dog.ViewAvailableDogs(availableDogs);
                         break;
                     case 2:
                         ApplyForAdoption();
@@ -64,7 +64,7 @@ namespace DogAdoption
                         ViewAdopters();
                         break;
                     case 4:
-                        SearchDogs();
+                        Dog.SearchDogs(availableDogs);
                         break;
                     case 5:
                         ViewAdoptedDogs();
@@ -86,16 +86,8 @@ namespace DogAdoption
             } while (menuBool);
         }
 
-        // Adds some sample dogs if the list is empty
-        private static void SeedDogs()
-        {
-            if (availableDogs.Count == 0)
-            {
-                availableDogs.Add(new Dog(1, "Buddy", "Labrador", 3, "Medium"));
-                availableDogs.Add(new Dog(2, "Milo", "Beagle", 2, "Small"));
-                availableDogs.Add(new Dog(3, "Daisy", "German Shepherd", 4, "Large"));
-            }
-        }
+        
+       
 
         // Shows the main menu and returns the user’s choice
         private static int DisplayMainMenu()
@@ -121,22 +113,11 @@ namespace DogAdoption
             {
                 Console.Clear();
                 Console.WriteLine("Exiting" + new string('.', i + 1));
-                Thread.Sleep(200);
+                Thread.Sleep(300);
             }
         }
 
-        // Displays all available dogs
-        private static void ViewAvailableDogs()
-        {
-            Console.Clear();
-            TerminalArt.Header("Available Dogs");
-            foreach (var dog in availableDogs.Where(d => d.IsAvailable))
-            {
-                Console.WriteLine(dog.GetDogDetails());
-            }
-            Console.WriteLine("Press Enter to return.");
-            Console.ReadLine();
-        }
+       
 
         // Handles adoption application process
         private static void ApplyForAdoption()
@@ -191,25 +172,7 @@ namespace DogAdoption
             Console.ReadLine();
         }
 
-        // Allows user to search dogs by name or ID
-        private static void SearchDogs()
-        {
-            Console.Clear();
-            TerminalArt.Header("Search Dogs");
-            Console.Write("Enter Dog Name or ID: ");
-            string input = Console.ReadLine();
-
-            var results = availableDogs.Where(d => d.Name.Equals(input, StringComparison.OrdinalIgnoreCase)
-                                                || d.Id.ToString() == input);
-
-            Console.WriteLine("\nSearch Results:");
-            foreach (var dog in results)
-            {
-                Console.WriteLine(dog.GetDogDetails());
-            }
-            Console.WriteLine("Press Enter to return.");
-            Console.ReadLine();
-        }
+        
 
         // Shows a list of dogs that have already been adopted
         private static void ViewAdoptedDogs()
