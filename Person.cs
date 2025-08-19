@@ -14,8 +14,8 @@ namespace DogAdoption
         private string contactInfo;
 
         // Common properties
-        public string Name { 
-            get { return Name; }
+        public string Name {
+            get { return name; }
             set
             {
                 if (!ValidationUtils.IsValidName(value))
@@ -25,9 +25,11 @@ namespace DogAdoption
                 name = value.Trim();
             }
         }
-        public string ContactInfo { 
+        public string ContactInfo
+        {
             get { return contactInfo; }
-            set{
+            set
+            {
                 if (!ValidationUtils.IsValidPhoneNumber(value))
                 {
                     throw new ArgumentException("Contact info must be a valid phone number (10-15 digits).");
@@ -35,6 +37,8 @@ namespace DogAdoption
                 contactInfo = value.Trim();
             }
         }
+            
+        
 
         // Constructor to set name and contact info
         public Person(string name, string contactInfo)
@@ -63,5 +67,6 @@ namespace DogAdoption
         {
             return ValidationUtils.IsValidName(name) && ValidationUtils.IsValidPhoneNumber(contactInfo);
         }
+       
     }
 }
