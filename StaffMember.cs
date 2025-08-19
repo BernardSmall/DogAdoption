@@ -7,19 +7,21 @@ using System.Threading.Tasks;
 
 namespace DogAdoption
 {
+    // StaffMember inherits from Person and can manage dogs
     public class StaffMember : Person, IManageDogs
     {
+        // Constructor
         public StaffMember(string name, string contactInfo) : base(name, contactInfo)
         {
-          
         }
 
-        // Keep your original GetDetails override
+        // Override GetDetails from Person
         public override string GetDetails()
         {
             return $"Staff Name: {Name}, Contact: {ContactInfo}";
         }
 
+        // Staff menu to manage dogs
         public void ManageDogs()
         {
             bool keepManaging = true;
@@ -57,8 +59,9 @@ namespace DogAdoption
             }
         }
 
+        // --- IManageDogs implementation ---
 
-        // IManageDogs implementation
+        // Add a new dog to the list
         public void AddDog(Dog dog, List<Dog> dogList)
         {
             dogList.Add(dog);
@@ -66,6 +69,7 @@ namespace DogAdoption
             Console.ReadLine();
         }
 
+        // Remove a dog by ID
         public void RemoveDog(int id, List<Dog> dogList)
         {
             Dog dog = dogList.FirstOrDefault(d => d.Id == id);
@@ -81,6 +85,7 @@ namespace DogAdoption
             Console.ReadLine();
         }
 
+        // Update an existing dog's details
         public void UpdateDog(int id, List<Dog> dogList)
         {
             Dog dog = dogList.FirstOrDefault(d => d.Id == id);
@@ -111,7 +116,9 @@ namespace DogAdoption
             Console.ReadLine();
         }
 
-        // Helper menus for input
+        // --- Helper menus for input ---
+
+        // Menu to add a new dog
         private void AddDogMenu()
         {
             Console.Write("Enter Dog ID: ");
@@ -133,6 +140,7 @@ namespace DogAdoption
             AddDog(newDog, Program.availableDogs);
         }
 
+        // Menu to remove a dog
         private void RemoveDogMenu()
         {
             Console.Write("Enter Dog ID to remove: ");
@@ -140,6 +148,7 @@ namespace DogAdoption
             RemoveDog(id, Program.availableDogs);
         }
 
+        // Menu to update a dog
         private void UpdateDogMenu()
         {
             Console.Write("Enter Dog ID to update: ");
