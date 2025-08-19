@@ -332,83 +332,46 @@ namespace DogAdoption
             Console.ReadLine();
         }
 
-        // Staff login and menu with enhanced validation
+       
+        
+        // Staff login and menu
         private static void ManageDogsAsStaff()
         {
-            int maxAttempts = 3;
             int attempts = 0;
             bool authenticated = false;
 
-            while (attempts < maxAttempts && !authenticated)
+            while (attempts < 3 && !authenticated)
             {
                 Console.Clear();
                 TerminalArt.Header("Staff Login");
 
-                string staffName = ValidationUtils.GetValidatedInput(
-                    "Enter staff name: ",
-                    ValidationUtils.IsValidName,
-                    "Staff name must be 2-50 characters and contain only letters, spaces, hyphens, and apostrophes.",
-                    1 // Only one attempt per login cycle
-                );
+                Console.Write("Enter staff name: ");
+                string staffName = Console.ReadLine();
 
-                if (staffName == null)
-                {
-                    attempts++;
-                    continue;
-                }
+                Console.Write("Enter contact info (password): ");
+                string staffContact = Console.ReadLine();
 
-                string password = ValidationUtils.GetValidatedInput(
-                    "Enter password: ",
-                    ValidationUtils.IsValidPassword,
-                    "Password must be 6-50 characters long.",
-                    1 // Only one attempt per login cycle
-                );
-
-                if (password == null)
-                {
-                    attempts++;
-                    continue;
-                }
-
-                // Basic staff login validation
-                if (staffName.Equals("Member01", StringComparison.OrdinalIgnoreCase) && password == "password")
+                if (staffName == "Member" && staffContact == "0123456789")
                 {
                     authenticated = true;
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine("\n✓ Access granted! Welcome to staff management.");
                     Console.ResetColor();
-                    Console.WriteLine("Press Enter to continue...");
+                    Console.WriteLine("\nPress Enter to continue.");
                     Console.ReadLine();
 
-                    try
-                    {
-                        StaffMember staff = new StaffMember(staffName, "Staff Contact Info");
-                        EventManager.TriggerLog($"Staff member logged in: {staffName}");
-                        staff.ManageDogs();
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine($"Error creating staff member: {ex.Message}");
-                        Console.ResetColor();
-                        EventManager.TriggerLog($"Error creating staff member: {ex.Message}");
-                        Console.WriteLine("Press Enter to return...");
-                        Console.ReadLine();
-                    }
+                    StaffMember staff = new StaffMember(staffName, staffContact);
+                    EventManager.TriggerLog($"Staff member logged in: {staffName}");
+                    staff.ManageDogs();
                 }
                 else
                 {
                     attempts++;
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"\n❌ Invalid credentials. Attempts remaining: {maxAttempts - attempts}");
-                    Console.ResetColor();
+                    Console.WriteLine($"\n❌ Invalid credentials. Attempts remaining: {3 - attempts}");
                     EventManager.TriggerLog($"Failed login attempt for staff: {staffName}");
-
-                    if (attempts < maxAttempts)
-                    {
-                        Console.WriteLine("Press Enter to try again...");
-                        Console.ReadLine();
-                    }
+                    Console.ResetColor();
+                    Thread.Sleep(4500);
                 }
             }
 
@@ -417,55 +380,12 @@ namespace DogAdoption
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("\n🚫 Too many failed attempts! Access denied.");
                 Console.ResetColor();
-                EventManager.TriggerLog("Staff login blocked - too many failed attempts");
                 Console.WriteLine("Returning to main menu...");
-                Thread.Sleep(2000);
+                Thread.Sleep(3000);
             }
+
         }
-        /*        // Staff login and menu
-                private static void ManageDogsAsStaff()
-                {
-                    int attempts = 0;
-                    bool authenticated = false;
-
-                    while (attempts < 3 && !authenticated)
-                    {
-                        Console.Clear();
-                        TerminalArt.Header("Staff Login");
-
-                        Console.Write("Enter staff name: ");
-                        string staffName = Console.ReadLine();
-
-                        Console.Write("Enter contact info (password): ");
-                        string contact = Console.ReadLine();
-
-                        if (staffName == "Member01" && contact == "password")
-                        {
-                            authenticated = true;
-                            Console.WriteLine("\nAccess granted! Press Enter.");
-                            Console.ReadLine();
-
-                            StaffMember staff = new StaffMember(staffName, contact);
-                            EventManager.TriggerLog($"Staff member logged in: {staffName}");
-                            staff.ManageDogs();
-                        }
-                        else
-                        {
-                            attempts++;
-                            Console.WriteLine($"\nInvalid credentials. Attempts left: {3 - attempts}");
-                            EventManager.TriggerLog($"Failed login attempt for staff: {staffName}");
-                            Thread.Sleep(1000);
-                        }
-                    }
-
-                    if (!authenticated)
-                    {
-                        Console.WriteLine("\nToo many failed attempts! Returning to main menu...");
-                        EventManager.TriggerLog("Staff login blocked - too many failed attempts");
-                        Thread.Sleep(1500);
-                    }
-
-                }*/
+        
 
         // Runs in the background and shows a green notification when someone adopts a dog
         private static void DogAdoptionNotification()
