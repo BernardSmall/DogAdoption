@@ -50,12 +50,12 @@ namespace DogAdoption
             // Main menu loop
             do
             {
-                SeedDogs();
+                Dog.SeedDogs(availableDogs);
 
                 switch (DisplayMainMenu())
                 {
                     case 1:
-                        ViewAvailableDogs();
+                        Dog.ViewAvailableDogs(availableDogs);
                         break;
                     case 2:
                         ApplyForAdoption();
@@ -64,7 +64,7 @@ namespace DogAdoption
                         ViewAdopters();
                         break;
                     case 4:
-                        SearchDogs();
+                        Dog.SearchDogs(availableDogs);
                         break;
                     case 5:
                         ViewAdoptedDogs();
@@ -86,34 +86,8 @@ namespace DogAdoption
             } while (menuBool);
         }
 
-        // Adds some sample dogs if the list is empty
-        private static void SeedDogs()
-        {
-            if (availableDogs.Count == 0)
-            {
-                availableDogs.Add(new Dog(1, "Buddy", "Labrador", 3, "Medium"));
-                availableDogs.Add(new Dog(2, "Milo", "Beagle", 2, "Small"));
-                availableDogs.Add(new Dog(3, "Daisy", "German Shepherd", 4, "Large"));
-                availableDogs.Add(new Dog(4, "Rocky", "Bulldog", 5, "Medium"));
-                availableDogs.Add(new Dog(5, "Luna", "Poodle", 1, "Small"));
-                availableDogs.Add(new Dog(6, "Charlie", "Golden Retriever", 6, "Large"));
-                availableDogs.Add(new Dog(7, "Bella", "Cocker Spaniel", 3, "Medium"));
-                availableDogs.Add(new Dog(8, "Max", "Rottweiler", 4, "Large"));
-                availableDogs.Add(new Dog(9, "Coco", "Chihuahua", 2, "Small"));
-                availableDogs.Add(new Dog(10, "Oscar", "Boxer", 5, "Medium"));
-                availableDogs.Add(new Dog(11, "Ruby", "Shih Tzu", 1, "Small"));
-                availableDogs.Add(new Dog(12, "Sam", "Border Collie", 3, "Medium"));
-                availableDogs.Add(new Dog(13, "Nala", "Doberman", 4, "Large"));
-                availableDogs.Add(new Dog(14, "Jack", "Dalmatian", 2, "Medium"));
-                availableDogs.Add(new Dog(15, "Molly", "Yorkshire Terrier", 6, "Small"));
-                availableDogs.Add(new Dog(16, "Leo", "Great Dane", 5, "Large"));
-                availableDogs.Add(new Dog(17, "Rosie", "Siberian Husky", 3, "Large"));
-                availableDogs.Add(new Dog(18, "Toby", "Cavalier King Charles", 4, "Small"));
-                availableDogs.Add(new Dog(19, "Zoe", "Maltese", 2, "Small"));
-                availableDogs.Add(new Dog(20, "Finn", "Australian Shepherd", 3, "Medium"));
-
-            }
-        }
+        
+       
 
         // Shows the main menu and returns the user’s choice
         private static int DisplayMainMenu()
@@ -143,18 +117,7 @@ namespace DogAdoption
             }
         }
 
-        // Displays all available dogs
-        private static void ViewAvailableDogs()
-        {
-            Console.Clear();
-            TerminalArt.Header("Available Dogs");
-            foreach (var dog in availableDogs.Where(d => d.IsAvailable))
-            {
-                Console.WriteLine(dog.GetDogDetails());
-            }
-            Console.WriteLine("Press Enter to return.");
-            Console.ReadLine();
-        }
+       
 
         // Handles adoption application process
         private static void ApplyForAdoption()
@@ -209,25 +172,7 @@ namespace DogAdoption
             Console.ReadLine();
         }
 
-        // Allows user to search dogs by name or ID
-        private static void SearchDogs()
-        {
-            Console.Clear();
-            TerminalArt.Header("Search Dogs");
-            Console.Write("Enter Dog Name or ID: ");
-            string input = Console.ReadLine();
-
-            var results = availableDogs.Where(d => d.Name.Equals(input, StringComparison.OrdinalIgnoreCase)
-                                                || d.Id.ToString() == input);
-
-            Console.WriteLine("\nSearch Results:");
-            foreach (var dog in results)
-            {
-                Console.WriteLine(dog.GetDogDetails());
-            }
-            Console.WriteLine("Press Enter to return.");
-            Console.ReadLine();
-        }
+        
 
         // Shows a list of dogs that have already been adopted
         private static void ViewAdoptedDogs()
