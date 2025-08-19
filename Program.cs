@@ -94,6 +94,24 @@ namespace DogAdoption
                 availableDogs.Add(new Dog(1, "Buddy", "Labrador", 3, "Medium"));
                 availableDogs.Add(new Dog(2, "Milo", "Beagle", 2, "Small"));
                 availableDogs.Add(new Dog(3, "Daisy", "German Shepherd", 4, "Large"));
+                availableDogs.Add(new Dog(4, "Rocky", "Bulldog", 5, "Medium"));
+                availableDogs.Add(new Dog(5, "Luna", "Poodle", 1, "Small"));
+                availableDogs.Add(new Dog(6, "Charlie", "Golden Retriever", 6, "Large"));
+                availableDogs.Add(new Dog(7, "Bella", "Cocker Spaniel", 3, "Medium"));
+                availableDogs.Add(new Dog(8, "Max", "Rottweiler", 4, "Large"));
+                availableDogs.Add(new Dog(9, "Coco", "Chihuahua", 2, "Small"));
+                availableDogs.Add(new Dog(10, "Oscar", "Boxer", 5, "Medium"));
+                availableDogs.Add(new Dog(11, "Ruby", "Shih Tzu", 1, "Small"));
+                availableDogs.Add(new Dog(12, "Sam", "Border Collie", 3, "Medium"));
+                availableDogs.Add(new Dog(13, "Nala", "Doberman", 4, "Large"));
+                availableDogs.Add(new Dog(14, "Jack", "Dalmatian", 2, "Medium"));
+                availableDogs.Add(new Dog(15, "Molly", "Yorkshire Terrier", 6, "Small"));
+                availableDogs.Add(new Dog(16, "Leo", "Great Dane", 5, "Large"));
+                availableDogs.Add(new Dog(17, "Rosie", "Siberian Husky", 3, "Large"));
+                availableDogs.Add(new Dog(18, "Toby", "Cavalier King Charles", 4, "Small"));
+                availableDogs.Add(new Dog(19, "Zoe", "Maltese", 2, "Small"));
+                availableDogs.Add(new Dog(20, "Finn", "Australian Shepherd", 3, "Medium"));
+
             }
         }
 
@@ -121,7 +139,7 @@ namespace DogAdoption
             {
                 Console.Clear();
                 Console.WriteLine("Exiting" + new string('.', i + 1));
-                Thread.Sleep(200);
+                Thread.Sleep(300);
             }
         }
 
