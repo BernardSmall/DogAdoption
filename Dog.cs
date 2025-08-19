@@ -125,18 +125,6 @@ public class Dog : IComparable<Dog>
             }
         }
 
-       /* public int CompareTo(Dog other)
-        {
-            if (other == null) return 1;
-
-            // Sort by Age first, then by Name
-            int ageComparison = this.Age.CompareTo(other.Age);
-            if (ageComparison != 0)
-                return ageComparison;
-
-            return string.Compare(this.Name, other.Name, StringComparison.OrdinalIgnoreCase);
-        }*/
-
         Console.WriteLine("Press Enter to return.");
         Console.ReadLine();
 

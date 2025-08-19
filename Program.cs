@@ -88,46 +88,6 @@ namespace DogAdoption
             } while (menuBool);
         } 
 
-
-        // Main menu loop
-        /*do
-        {
-            Dog.SeedDogs(availableDogs);
-
-            switch (DisplayMainMenu())
-            {
-                case 1:
-                    Dog.ViewAvailableDogs(availableDogs);
-                    break;
-                case 2:
-                    ApplyForAdoption();
-                    break;
-                case 3:
-                    ViewAdopters();
-                    break;
-                case 4:
-                    Dog.SearchDogs(availableDogs);
-                    break;
-                case 5:
-                    ViewAdoptedDogs();
-                    break;
-                case 6:
-                    ManageDogsAsStaff();
-                    break;
-                case 7:
-                    CloseProgramLoadScreen();
-                    Console.WriteLine("Program closed");
-                    Thread.Sleep(2000);
-                    Environment.Exit(0);
-                    break;
-                default:
-                    Console.WriteLine("Invalid option! Press Enter.");
-                    Console.ReadLine();
-                    break;
-            }
-        } while (menuBool);*/
-
-
         private static void InitializeMenuActions()
         {
             menuActions = new Dictionary<int, MenuActionDelegate>
@@ -193,24 +153,6 @@ namespace DogAdoption
             EventManager.TriggerLog($"Viewed available dogs list ({availableOnly.Count} dogs available)");
             Console.WriteLine("Press Enter to return.");
             Console.ReadLine();
-            /*Console.Clear();
-            TerminalArt.Header("Available Dogs");
-            var availableOnly = availableDogs.Where(d => d.IsAvailable).ToList();
-
-            if (availableOnly.Count == 0)
-            {
-                Console.WriteLine("No dogs available for adoption at the moment.");
-            }
-            else
-            {
-                foreach (var dog in availableOnly)
-                {
-                    Console.WriteLine(dog.GetDogDetails());
-                }
-            }
-            EventManager.TriggerLog($"Viewed available dogs list ({availableOnly.Count} dogs available)");
-            Console.WriteLine("Press Enter to return.");
-            Console.ReadLine();*/
         }
 
             // Handles adoption application process
@@ -236,11 +178,6 @@ namespace DogAdoption
                 Console.WriteLine(dog.GetDogDetails());
             }
 
-            //foreach (var dog in availableDogs.Where(d => d.IsAvailable))
-            //{
-            //    Console.WriteLine(dog.GetDogDetails());
-            //}
-
             Console.Write("\nEnter Dog ID to adopt: ");
             int.TryParse(Console.ReadLine(), out int id);
 
@@ -262,36 +199,6 @@ namespace DogAdoption
                 EventManager.TriggerLog($"Failed adoption attempt - Invalid dog ID: {id}");
             }
             Console.ReadLine();
-
-            /*foreach (var dog in availableDogs.Where(d => d.IsAvailable))
-            {
-                Console.WriteLine(dog.GetDogDetails());
-            }*/
-
-            /*Console.Write("\nEnter Dog ID to adopt: ");
-            int.TryParse(Console.ReadLine(), out int id);
-
-            Dog selectedDog = availableDogs.FirstOrDefault(d => d.Id == id && d.IsAvailable);
-            if (selectedDog != null)
-            {
-                selectedDog.ChangeAvailabilityStatus(false);
-
-                selectedDog.IsAvailable = false;
-               
-                AdoptionApplication app = new AdoptionApplication(selectedDog, adopter);
-                applications.Add(app);
-                
-                Console.WriteLine($"\nSuccess! {adopter.Name} adopted {selectedDog.Name}. Press Enter.");
-                EventManager.TriggerNotification($"🎉 Successful adoption: {adopter.Name} adopted {selectedDog.Name}!");
-
-            }
-            else
-            {
-                Console.WriteLine("\nInvalid or already adopted dog. Press Enter.");
-                EventManager.TriggerLog($"Failed adoption attempt - Invalid dog ID: {id}");
-
-            }
-            Console.ReadLine();*/
         }
 
         // Displays all adopters
@@ -317,14 +224,6 @@ namespace DogAdoption
             EventManager.TriggerLog($"Viewed adopters list ({adopters.Count} adopters)");
             Console.WriteLine("Press Enter to return.");
             Console.ReadLine();
-            /* Console.Clear();
-             TerminalArt.Header("All Adopters");
-             foreach (var adopter in adopters)
-             {
-                 Console.WriteLine(adopter.GetDetails());
-             }
-             Console.WriteLine("Press Enter to return.");
-             Console.ReadLine();*/
         }
 
         private static void SearchDogs()
@@ -382,14 +281,6 @@ namespace DogAdoption
             EventManager.TriggerLog($"Viewed adopted dogs list ({applications.Count} adoptions)");
             Console.WriteLine("Press Enter to return.");
             Console.ReadLine();
-            /*  Console.Clear();
-              TerminalArt.Header("Adopted Dogs");
-              foreach (var app in applications)
-              {
-                  Console.WriteLine(app.GetApplicationDetails());
-              }
-              Console.WriteLine("Press Enter to return.");
-              Console.ReadLine();*/
         }
 
         // Staff login and menu
@@ -434,43 +325,7 @@ namespace DogAdoption
                 EventManager.TriggerLog("Staff login blocked - too many failed attempts");
                 Thread.Sleep(1500);
             }
-        /* int attempts = 0;
-         bool authenticated = false;
-
-         while (attempts < 3 && !authenticated)
-         {
-             Console.Clear();
-             TerminalArt.Header("Staff Login");
-
-             Console.Write("Enter staff name: ");
-             string staffName = Console.ReadLine();
-
-             Console.Write("Enter contact info (password): ");
-             string contact = Console.ReadLine();
-
-             // Basic staff login (hard-coded for now)
-             if (staffName == "Member01" && contact == "password")
-             {
-                 authenticated = true;
-                 Console.WriteLine("\nAccess granted! Press Enter.");
-                 Console.ReadLine();
-
-                 StaffMember staff = new StaffMember(staffName, contact);
-                 staff.ManageDogs();
-             }
-             else
-             {
-                 attempts++;
-                 Console.WriteLine($"\nInvalid credentials. Attempts left: {3 - attempts}");
-                 Thread.Sleep(1000);
-             }
-         }
-
-         if (!authenticated)
-         {
-             Console.WriteLine("\nToo many failed attempts! Returning to main menu...");
-             Thread.Sleep(1500);
-         }*/
+       
     }
 
         // Runs in the background and shows a green notification when someone adopts a dog
